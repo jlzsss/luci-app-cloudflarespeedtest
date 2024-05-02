@@ -6,7 +6,7 @@ m = Map('cloudflarespeedtest')
 m.title = translate('Cloudflare Speed Test')
 m.description = '<a href=\"https://github.com/mingxiaoyu/luci-app-cloudflarespeedtest\" target=\"_blank\">GitHub</a>'
 
--- [[ 鍩烘湰璁剧疆 ]]--
+-- [[ 基本设置 ]]--
 
 s = m:section(NamedSection, 'global')
 s.addremove = false
