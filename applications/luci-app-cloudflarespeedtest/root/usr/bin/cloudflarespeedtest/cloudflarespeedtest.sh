@@ -307,10 +307,14 @@ function v2ray_best_ip(){
 		echolog "设置V2ray IP"
 		for ssrname in $v2ray_services
 		do
-		if [ -f `uci get v2ray.@outbound[0].s_vmess_address` ];then
+		if [ -n `uci get v2ray.@outbound[0].s_vmess_address` ] && [ -n `uci get v2ray.@outbound[0].s_vless_address` ];then
+			echo $ssrname
+			uci set v2ray.$ssrname.s_vless_address="${bestip}"
+			uci set v2ray.$ssrname.s_vmess_address="${bestip}"
+		elif [ -n `uci get v2ray.@outbound[0].s_vmess_address` ];then
 			echo $ssrname
 			uci set v2ray.$ssrname.s_vmess_address="${bestip}"
-		elif [ -f `uci get v2ray.@outbound[0].s_vless_address` ];then
+		elif [ -n `uci get v2ray.@outbound[0].s_vless_address` ];then
 			echo $ssrname
 			uci set v2ray.$ssrname.s_vless_address="${bestip}"
 		fi
@@ -322,6 +326,7 @@ function v2ray_best_ip(){
 		fi
 	fi
 }
+
 
 function vssr_best_ip(){
 	if [ $vssr_enabled -eq "1" ] ;then
