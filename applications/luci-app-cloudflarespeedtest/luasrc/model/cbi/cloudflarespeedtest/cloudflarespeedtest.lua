@@ -247,35 +247,43 @@ end
 
 s:tab("vssrtab", translate("Vssr"))
 if nixio.fs.access("/etc/config/vssr") then
-	
-	o=s:taboption("vssrtab", Flag, "vssr_enabled",translate("Vssr Enabled"))
-	o.rmempty=true	
+    
+    o=s:taboption("vssrtab", Flag, "vssr_enabled",translate("Vssr Enabled"))
+    o.rmempty=true    
 
-	local vssr_server_table = {}
-	uci:foreach("vssr", "servers", function(s)
-		if s.alias then
-			vssr_server_table[s[".name"]] = "[%s]:%s" % {string.upper(s.protocol or s.type), s.alias}
-		elseif s.server and s.server_port then
-			vssr_server_table[s[".name"]] = "[%s]:%s:%s" % {string.upper(s.protocol or s.type), s.server, s.server_port}
-		end
-	end)
+    local vssr_server_table = {}
+    -- 修复：适配 Vssr 可能的服务器配置结构，增加协议和地址端口的兼容性处理
+    uci:foreach("vssr", "servers", function(s)
+        local proto = string.upper(s.protocol or s.type or "unknown")
+        if s.alias then
+            vssr_server_table[s[".name"]] = "[%s]:%s" % {proto, s.alias}
+        elseif s.server and s.server_port then
+            vssr_server_table[s[".name"]] = "[%s]:%s:%s" % {proto, s.server, s.server_port}
+        -- 增加对可能的备用字段的支持
+        elseif s.address and s.port then
+            vssr_server_table[s[".name"]] = "[%s]:%s:%s" % {proto, s.address, s.port}
+        else
+            -- 兜底显示，避免遗漏服务器
+            vssr_server_table[s[".name"]] = "[%s]:%s" % {proto, s[".name"]}
+        end
+    end)
 
-	local vssr_key_table = {}
-	for key, _ in pairs(vssr_server_table) do
-		table.insert(vssr_key_table, key)
-	end
+    local vssr_key_table = {}
+    for key, _ in pairs(vssr_server_table) do
+        table.insert(vssr_key_table, key)
+    end
 
-	table.sort(vssr_key_table)
+    table.sort(vssr_key_table)
 
-	o = s:taboption("vssrtab", DynamicList, "vssr_services",
-			translate("Vssr Servers"),
-			translate("Please select a service"))
-			
-	for _, key in pairs(vssr_key_table) do
-		o:value(key, vssr_server_table[key])
-	end
-	o:depends("vssr_enabled", 1)
-	o.forcewrite = true
+    o = s:taboption("vssrtab", DynamicList, "vssr_services",
+            translate("Vssr Servers"),
+            translate("Please select a service"))
+            
+    for _, key in pairs(vssr_key_table) do
+        o:value(key, vssr_server_table[key])
+    end
+    o:depends("vssr_enabled", 1)
+    o.forcewrite = true  -- 确保值能正确写入配置文件
 
 end
 
