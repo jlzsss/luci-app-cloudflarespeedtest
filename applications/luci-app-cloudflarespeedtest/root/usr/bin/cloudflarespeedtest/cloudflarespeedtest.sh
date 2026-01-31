@@ -439,7 +439,7 @@ function homeproxy_best_ip(){
 		for ssrname in $homeproxy_services
 		do
 			echo $ssrname
-			uci set homeproxy.$ssrname.server="${bestip}"
+			uci set homeproxy.$ssrname.address="${bestip}"
 		done
 		uci commit homeproxy
 		if [ "$homeproxy_server_enabled" = "1" ] ;then
