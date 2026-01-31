@@ -355,34 +355,104 @@ if nixio.fs.access("/etc/config/v2ray") then
 
 end
 
-s:tab("shadowsockstab", translate("Shadowsocks"))
-if nixio.fs.access("/etc/config/shadowsocks-libev") then
+s:tab("homeproxytab", translate("HomeProxy"))
+if nixio.fs.access("/etc/config/homeproxy") then
 	
-	o=s:taboption("shadowsockstab", Flag, "shadowsocks_enabled",translate("Shadowsocks-libev Enabled"))
+	o=s:taboption("homeproxytab", Flag, "homeproxy_enabled",translate("HomeProxy Enabled"))
 	o.rmempty=true	
 
-	local shadowsocks_server_table = {}
-	uci:foreach("shadowsocks-libev", "server", function(s)
-		if s.server then
-			shadowsocks_server_table[s[".name"]] = "[SS]:%s" % {s.server}
+	local homeproxy_server_table = {}
+	uci:foreach("homeproxy", "node", function(s)
+		if s.label then
+			homeproxy_server_table[s[".name"]] = "[%s]:%s" % {string.upper(s.protocol or s.type), s.label}
+		elseif s.server then
+			homeproxy_server_table[s[".name"]] = "[%s]:%s" % {string.upper(s.protocol or s.type), s.server}
 		end
 	end)
 
-	local shadowsocks_key_table = {}
-	for key, _ in pairs(shadowsocks_server_table) do
-		table.insert(shadowsocks_key_table, key)
+	local homeproxy_key_table = {}
+	for key, _ in pairs(homeproxy_server_table) do
+		table.insert(homeproxy_key_table, key)
 	end
 
-	table.sort(shadowsocks_key_table)
+	table.sort(homeproxy_key_table)
 
-	o = s:taboption("shadowsockstab", DynamicList, "shadowsocks_services",
-			translate("Shadowsocks-libev Servers"),
+	o = s:taboption("homeproxytab", DynamicList, "homeproxy_services",
+			translate("HomeProxy Servers"),
 			translate("Please select a service"))
 			
-	for _, key in pairs(shadowsocks_key_table) do
-		o:value(key, shadowsocks_server_table[key])
+	for _, key in pairs(homeproxy_key_table) do
+		o:value(key, homeproxy_server_table[key])
 	end
-	o:depends("shadowsocks_enabled", 1)
+	o:depends("homeproxy_enabled", 1)
+	o.forcewrite = true
+
+end
+
+s:tab("v2rayatab", translate("v2rayA"))
+if nixio.fs.access("/etc/config/v2raya") then
+	
+	o=s:taboption("v2rayatab", Flag, "v2raya_enabled",translate("v2rayA Enabled"))
+	o.rmempty=true	
+
+	local v2raya_server_table = {}
+	uci:foreach("v2raya", "node", function(s)
+		if s.label then
+			v2raya_server_table[s[".name"]] = "[%s]:%s" % {string.upper(s.protocol or s.type), s.label}
+		elseif s.server then
+			v2raya_server_table[s[".name"]] = "[%s]:%s" % {string.upper(s.protocol or s.type), s.server}
+		end
+	end)
+
+	local v2raya_key_table = {}
+	for key, _ in pairs(v2raya_server_table) do
+		table.insert(v2raya_key_table, key)
+	end
+
+	table.sort(v2raya_key_table)
+
+	o = s:taboption("v2rayatab", DynamicList, "v2raya_services",
+			translate("v2rayA Servers"),
+			translate("Please select a service"))
+			
+	for _, key in pairs(v2raya_key_table) do
+		o:value(key, v2raya_server_table[key])
+	end
+	o:depends("v2raya_enabled", 1)
+	o.forcewrite = true
+
+end
+
+s:tab("xjaytab", translate("xjay"))
+if nixio.fs.access("/etc/config/xjay") then
+	
+	o=s:taboption("xjaytab", Flag, "xjay_enabled",translate("xjay Enabled"))
+	o.rmempty=true	
+
+	local xjay_server_table = {}
+	uci:foreach("xjay", "node", function(s)
+		if s.label then
+			xjay_server_table[s[".name"]] = "[%s]:%s" % {string.upper(s.protocol or s.type), s.label}
+		elseif s.server then
+			xjay_server_table[s[".name"]] = "[%s]:%s" % {string.upper(s.protocol or s.type), s.server}
+		end
+	end)
+
+	local xjay_key_table = {}
+	for key, _ in pairs(xjay_server_table) do
+		table.insert(xjay_key_table, key)
+	end
+
+	table.sort(xjay_key_table)
+
+	o = s:taboption("xjaytab", DynamicList, "xjay_services",
+			translate("xjay Servers"),
+			translate("Please select a service"))
+			
+	for _, key in pairs(xjay_key_table) do
+		o:value(key, xjay_server_table[key])
+	end
+	o:depends("xjay_enabled", 1)
 	o.forcewrite = true
 
 end
