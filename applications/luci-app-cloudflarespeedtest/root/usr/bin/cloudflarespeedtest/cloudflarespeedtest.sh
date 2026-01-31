@@ -1,4 +1,4 @@
- #!/bin/sh
+#!/bin/sh
 
 LOG_FILE='/var/log/cloudflarespeedtest.log'
 IP_FILE='/usr/share/cloudflarespeedtestresult.txt'
@@ -111,7 +111,6 @@ function  speed_test(){
 	fi
 
 	passwall_server_enabled=$(uci get passwall.@global[0].enabled 2>/dev/null)
-	# passwall_original_run_mode=$(uci get passwall.@global[0].tcp_proxy_mode 2>/dev/null)
 	passwall_original_run_mode="proxy"
 	if [ "$passwall_server_enabled" = "1" ] ;then
 		if [ "$proxy_mode" = "close" ] ;then
@@ -201,7 +200,6 @@ function  speed_test(){
 
 function ip_replace(){
 
-	# 获取最快 IP（从 result.csv 结果文件中获取第一个 IP）
 	bestip=$(sed -n "2,1p" $IP_FILE | awk -F, '{print $1}')
 	[[ -z "${bestip}" ]] && echo "CloudflareST 测速结果 IP 数量为 0，跳过下面步骤..." && exit 0
 
