@@ -238,3 +238,30 @@ msgstr "启用HOST"
 
 msgid "Domain"
 msgstr "域名"
+
+msgid "HomeProxy"
+msgstr "HomeProxy"
+
+msgid "HomeProxy Enabled"
+msgstr "启用HomeProxy"
+
+msgid "HomeProxy Servers"
+msgstr "HomeProxy服务"
+
+msgid "v2rayA"
+msgstr "v2rayA"
+
+msgid "v2rayA Enabled"
+msgstr "启用v2rayA"
+
+msgid "v2rayA Servers"
+msgstr "v2rayA服务"
+
+msgid "xjay"
+msgstr "xjay"
+
+msgid "xjay Enabled"
+msgstr "启用xjay"
+
+msgid "xjay Servers"
+msgstr "xjay服务"
