@@ -98,9 +98,6 @@ msgstr "Xray服务"
 msgid "Vray Servers"
 msgstr "Vray服务"
 
-msgid "Shadowsocks-libev Servers"
-msgstr "Shadowsocks-libev服务"
-
 msgid "Please select a service"
 msgstr "请选择一项服务"
 
