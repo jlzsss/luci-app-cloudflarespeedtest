@@ -428,7 +428,7 @@ if nixio.fs.access("/etc/config/xjay") then
 	
 	o=s:taboption("xjaytab", Flag, "xjay_enabled",translate("xjay Enabled"))
 	o.rmempty=true	
-
+	
 	local xjay_server_table = {}
 	uci:foreach("xjay", "node", function(s)
 		if s.label then
@@ -453,6 +453,38 @@ if nixio.fs.access("/etc/config/xjay") then
 		o:value(key, xjay_server_table[key])
 	end
 	o:depends("xjay_enabled", 1)
+	o.forcewrite = true
+
+end
+
+s:tab("sxraytab", translate("SXray"))
+if nixio.fs.access("/etc/config/sxray") then
+	
+	o=s:taboption("sxraytab", Flag, "sxray_enabled",translate("SXray Enabled"))
+	o.rmempty=true	
+	
+	local sxray_server_table = {}
+	uci:foreach("sxray", "nodes", function(s)
+		if s.remarks then
+			sxray_server_table[s[".name"]] = "[%s]:%s" % {string.upper(s.protocol or s.type), s.remarks}
+		end
+	end)
+
+	local sxray_key_table = {}
+	for key, _ in pairs(sxray_server_table) do
+		table.insert(sxray_key_table, key)
+	end
+
+	table.sort(sxray_key_table)
+
+	o = s:taboption("sxraytab", DynamicList, "sxray_services",
+			translate("SXray Servers"),
+			translate("Please select a service"))
+			
+	for _, key in pairs(sxray_key_table) do
+		o:value(key, sxray_server_table[key])
+	end
+	o:depends("sxray_enabled", 1)
 	o.forcewrite = true
 
 end

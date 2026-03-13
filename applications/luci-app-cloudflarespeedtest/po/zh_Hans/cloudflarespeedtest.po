@@ -262,3 +262,12 @@ msgstr "启用xjay"
 
 msgid "xjay Servers"
 msgstr "xjay服务"
+
+msgid "SXray"
+msgstr "SXray"
+
+msgid "SXray Enabled"
+msgstr "启用SXray"
+
+msgid "SXray Servers"
+msgstr "SXray服务"

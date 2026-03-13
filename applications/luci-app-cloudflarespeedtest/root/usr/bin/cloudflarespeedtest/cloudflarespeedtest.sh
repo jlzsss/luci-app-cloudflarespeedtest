@@ -47,7 +47,7 @@ echolog() {
 
 function read_config(){
 	get_global_config "enabled" "speed" "custome_url" "threads" "custome_cors_enabled" "custome_cron" "t" "tp" "dt" "dn" "dd" "tl" "tll" "allip_enabled" "advanced" "proxy_mode"
-	get_servers_config "ssr_services" "ssr_enabled" "passwall_enabled" "passwall_services" "passwall2_enabled" "passwall2_services" "bypass_enabled" "bypass_services" "vssr_enabled" "vssr_services" "DNS_enabled" "xray_core_enabled" "xray_core_services" "v2ray_enabled" "v2ray_services" "HOST_enabled" "homeproxy_enabled" "homeproxy_services" "v2raya_enabled" "v2raya_services" "xjay_enabled" "xjay_services"
+	get_servers_config "ssr_services" "ssr_enabled" "passwall_enabled" "passwall_services" "passwall2_enabled" "passwall2_services" "bypass_enabled" "bypass_services" "vssr_enabled" "vssr_services" "DNS_enabled" "xray_core_enabled" "xray_core_services" "v2ray_enabled" "v2ray_services" "HOST_enabled" "homeproxy_enabled" "homeproxy_services" "v2raya_enabled" "v2raya_services" "xjay_enabled" "xjay_services" "sxray_enabled" "sxray_services"
 }
 
 function  speed_test(){
@@ -192,6 +192,19 @@ function  speed_test(){
 		uci commit xjay
 		/etc/init.d/xjay restart 2>/dev/null
 	fi
+
+	sxray_server_enabled=$(uci get sxray.@global[0].enabled 2>/dev/null)
+	sxray_original_run_mode=$(uci get sxray.@global[0].tcp_proxy_mode 2>/dev/null)
+	if [ "$sxray_server_enabled" = "1" ] ;then
+		if [ "$proxy_mode" = "close" ] ;then
+			uci set sxray.@global[0].enabled="0"
+		elif  [ "$proxy_mode" = "gfw" ] ;then
+			uci set sxray.@global[0].tcp_proxy_mode="disable"
+   			uci set sxray.@global[0].udp_proxy_mode="disable"
+		fi
+		uci commit sxray
+		/etc/init.d/sxray restart 2>/dev/null
+	fi
 		echo $command  >> $LOG_FILE 2>&1 
 	echolog "-----------start----------" 
 	$command >> $LOG_FILE 2>&1
@@ -224,6 +237,8 @@ function ip_replace(){
 	v2raya_best_ip
 
 	xjay_best_ip
+	
+	sxray_best_ip
 	
 	host_ip
 
@@ -495,6 +510,33 @@ function xjay_best_ip(){
 		if [ "$xjay_server_enabled" = "1" ] ;then
 			/etc/init.d/xjay restart 2>/dev/null
 			echolog "xjay重启完成"
+		fi
+	fi
+}
+
+function sxray_best_ip(){
+	if [ "$sxray_server_enabled" = '1' ] ; then
+		echolog "设置sxray代理模式"
+		if [ "$proxy_mode" = "close" ] ;then
+			uci set sxray.@global[0].enabled="${sxray_server_enabled}"
+		elif [ "$proxy_mode" = "gfw" ] ;then
+			uci set sxray.@global[0].tcp_proxy_mode="${sxray_original_run_mode}"
+   			uci set sxray.@global[0].udp_proxy_mode="${sxray_original_run_mode}"
+		fi
+		uci commit sxray
+	fi
+
+	if [ "$sxray_enabled" = "1" ] ;then
+		echolog "设置sxray IP"
+		for ssrname in $sxray_services
+		do
+			echo $ssrname
+			uci set sxray.$ssrname.address="${bestip}"
+		done
+		uci commit sxray
+ 		if [ "$sxray_server_enabled" = "1" ] ;then
+			/etc/init.d/sxray restart 2>/dev/null
+			echolog "sxray重启完成"
 		fi
 	fi
 }
