@@ -464,9 +464,9 @@ if nixio.fs.access("/etc/config/sxray") then
 	o.rmempty=true	
 	
 	local sxray_server_table = {}
-	uci:foreach("sxray", "nodes", function(s)
-		if s.remarks then
-			sxray_server_table[s[".name"]] = "[%s]:%s" % {string.upper(s.protocol or s.type), s.remarks}
+	uci:foreach("sxray", "outbound", function(s)
+		if s.alias then
+			sxray_server_table[s[".name"]] = "[%s]:%s" % {string.upper(s.protocol or "unknown"), s.alias}
 		end
 	end)
 

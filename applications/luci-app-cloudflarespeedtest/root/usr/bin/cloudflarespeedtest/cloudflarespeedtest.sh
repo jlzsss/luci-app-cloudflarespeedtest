@@ -193,14 +193,14 @@ function  speed_test(){
 		/etc/init.d/xjay restart 2>/dev/null
 	fi
 
-	sxray_server_enabled=$(uci get sxray.@global[0].enabled 2>/dev/null)
-	sxray_original_run_mode=$(uci get sxray.@global[0].tcp_proxy_mode 2>/dev/null)
+	sxray_server_enabled=$(uci get sxray.main.enabled 2>/dev/null)
+	sxray_original_run_mode=$(uci get sxray.main.tcp_proxy_mode 2>/dev/null)
 	if [ "$sxray_server_enabled" = "1" ] ;then
 		if [ "$proxy_mode" = "close" ] ;then
-			uci set sxray.@global[0].enabled="0"
+			uci set sxray.main.enabled="0"
 		elif  [ "$proxy_mode" = "gfw" ] ;then
-			uci set sxray.@global[0].tcp_proxy_mode="disable"
-   			uci set sxray.@global[0].udp_proxy_mode="disable"
+			uci set sxray.main.tcp_proxy_mode="disable"
+   			uci set sxray.main.udp_proxy_mode="disable"
 		fi
 		uci commit sxray
 		/etc/init.d/sxray restart 2>/dev/null
@@ -518,10 +518,10 @@ function sxray_best_ip(){
 	if [ "$sxray_server_enabled" = '1' ] ; then
 		echolog "设置sxray代理模式"
 		if [ "$proxy_mode" = "close" ] ;then
-			uci set sxray.@global[0].enabled="${sxray_server_enabled}"
+			uci set sxray.main.enabled="${sxray_server_enabled}"
 		elif [ "$proxy_mode" = "gfw" ] ;then
-			uci set sxray.@global[0].tcp_proxy_mode="${sxray_original_run_mode}"
-   			uci set sxray.@global[0].udp_proxy_mode="${sxray_original_run_mode}"
+			uci set sxray.main.tcp_proxy_mode="${sxray_original_run_mode}"
+   			uci set sxray.main.udp_proxy_mode="${sxray_original_run_mode}"
 		fi
 		uci commit sxray
 	fi
@@ -531,7 +531,42 @@ function sxray_best_ip(){
 		for ssrname in $sxray_services
 		do
 			echo $ssrname
-			uci set sxray.$ssrname.address="${bestip}"
+			local protocol=$(uci get sxray.$ssrname.protocol 2>/dev/null)
+			case "$protocol" in
+				vmess)
+					uci set sxray.$ssrname.s_vmess_address="${bestip}"
+					;;
+				vless)
+					uci set sxray.$ssrname.s_vless_address="${bestip}"
+					;;
+				trojan)
+					uci set sxray.$ssrname.s_trojan_address="${bestip}"
+					;;
+				shadowsocks)
+					uci set sxray.$ssrname.s_shadowsocks_address="${bestip}"
+					;;
+				socks)
+					uci set sxray.$ssrname.s_socks_server_address="${bestip}"
+					;;
+				http)
+					uci set sxray.$ssrname.s_http_server_address="${bestip}"
+					;;
+				hysteria2)
+					uci set sxray.$ssrname.s_hysteria2_address="${bestip}"
+					;;
+				tuic)
+					uci set sxray.$ssrname.s_tuic_address="${bestip}"
+					;;
+				wireguard)
+					uci set sxray.$ssrname.s_wireguard_address="${bestip}"
+					;;
+				naive)
+					uci set sxray.$ssrname.s_naive_address="${bestip}"
+					;;
+				*)
+					echolog "未知的协议类型: $protocol，跳过节点 $ssrname"
+					;;
+			esac
 		done
 		uci commit sxray
  		if [ "$sxray_server_enabled" = "1" ] ;then
